@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-import Comments from './comments';
+import Comments from './Comments';
 
 // Defining the API key and URL for fetching random images from Unsplash
 const API_KEY = import.meta.env.VITE_UNSPLASH_API_KEY;
@@ -17,6 +17,7 @@ interface UnsplashImage {
     regular: string;
   };
   alt_description: string;
+  imageId: string;
 }
 
 // Main component that fetches and displays a gallery of random Unsplash images
@@ -71,7 +72,7 @@ const UnsplashGallery = () => {
             <h2>{selectedImg.alt_description}</h2>
             <h3>Author: {selectedImg.user.name}</h3>
             <p>Tags: {getKeywords(selectedImg.alt_description).join(", ")}</p>
-            <Comments />
+            <Comments imageId={selectedImg.id}/>
           </div>
         </div>
       )}

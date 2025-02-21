@@ -7,7 +7,11 @@ interface Comment {
   content: string;
 }
 
-const Comments: React.FC = () => {
+interface CommentsProps {
+  imageId: string;
+}
+
+const Comments: React.FC<CommentsProps> = ({ imageId }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState({ username: "", content: "" });
   const [loading, setLoading] = useState<boolean>(true);
@@ -17,16 +21,16 @@ const Comments: React.FC = () => {
   const fetchComments = async () => {
     setLoading(true);
     setError("");
-
+  
     try {
-      const response = await fetch("http://localhost:5000/comments");
+      const response = await fetch(`http://localhost:5000/comments?imageId=${encodeURIComponent(imageId)}`);
       if (!response.ok) throw new Error("Error fetching comments");
-
+  
       const data = await response.json();
       if (Array.isArray(data)) {
         setComments(data);
       } else {
-        setComments([]); // Ensures there is always a valid array
+        setComments([]);
       }
     } catch (err) {
       setError(`Error loading comments: ${err}`);
@@ -34,27 +38,30 @@ const Comments: React.FC = () => {
       setLoading(false);
     }
   };
-
-  // 🔹 Load comments when the component mounts
+  
+  // 🔹 Load comments when the component mounts (incluso si imageId cambia)
   useEffect(() => {
     fetchComments();
-  }, []);
+  }, [imageId]);  // Ahora depende de imageId
 
   // 🔹 Function to submit a new comment
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+  
+    // Incluimos imageId en el objeto que vamos a enviar
+    const commentWithImageId = { ...newComment, imageId };
+    
     try {
       const response = await fetch("http://localhost:5000/comments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newComment),
+        body: JSON.stringify(commentWithImageId), // Enviamos el comentario con el imageId
       });
-
+  
       if (!response.ok) throw new Error("Error submitting the comment");
-
-      await fetchComments(); // Reload comments from the backend
-      setNewComment({ username: "", content: "" });
+  
+      await fetchComments(); // Recargar los comentarios del backend
+      setNewComment({ username: "", content: "" }); // Limpiar el formulario
     } catch (err) {
       setError(`Error adding the comment: ${err}`);
     }

@@ -28,9 +28,19 @@ interface Comment {
 }
 
 // Route to get comments
+// Ruta para obtener comentarios filtrados por imageId
 app.get("/comments", async (req: Request, res: Response): Promise<void> => {
+  const { imageId } = req.query; // Obtener el parámetro imageId de la query string
+
+  let query = "SELECT * FROM comments WHERE 1=1"; // Consulta básica
+
+  // Filtrar por imageId si se pasa
+  if (imageId) {
+    query += ` AND image_id = ?`;
+  }
+
   try {
-    pool.query("SELECT * FROM comments ORDER BY created_at DESC", (error, results) => {
+    pool.query(query, [imageId], (error, results) => {
       if (error) {
         console.error("Error fetching comments", error);
         res.status(500).json({ error: "Internal server error" });
@@ -44,6 +54,7 @@ app.get("/comments", async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+
 // Route to add a comment
 app.post("/comments", async (req: Request, res: Response): Promise<void> => {
   const { username, content, imageId } = req.body;
@@ -51,13 +62,19 @@ app.post("/comments", async (req: Request, res: Response): Promise<void> => {
   // Check if both username and content are provided
   if (!username || !content) {
     res.status(400).json({ error: "Missing data" });
-    return;
+    return; // Se asegura de que la función termine después de la respuesta
+  }
+
+  // Check if the comment content is too short
+  if (content.length < 5) {
+    res.status(400).json({ error: "Comment must be at least 5 characters long" });
+    return; // Asegura que la función termine después de la respuesta
   }
 
   try {
     // Insert the comment
     const [result]: any = await pool.promise().execute(
-      "INSERT INTO comments (username, content, imageId) VALUES (?, ?, ?)",
+      "INSERT INTO comments (username, content, image_id) VALUES (?, ?, ?)",
       [username, content, imageId]
     );
 
@@ -74,8 +91,9 @@ app.post("/comments", async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`);
+  console.log(`Server running at http://localhost:${PORT}`);
 });
