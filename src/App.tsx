@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import './App.css'
+import Comments from './comments';
 
 // Defining the API key and URL for fetching random images from Unsplash
 const API_KEY = import.meta.env.VITE_UNSPLASH_API_KEY;
@@ -34,11 +35,12 @@ const UnsplashGallery = () => {
       .catch(error => console.error('Error when getting images', error));
   }, []);
 
+  // Function to extract keywords from the image description for tags
   const getKeywords = (description: string) => {
     return description
       ?.toLowerCase()
       .split(" ")
-      .filter(word => word.length > 3 && !word.match(/very|with|through/)) // filter to ignore
+      .filter(word => word.length > 3 && !word.match(/very|with|through/)) // Filter to ignore common words
       .slice(0, 5); // 5 tags max
   };
 
@@ -58,7 +60,7 @@ const UnsplashGallery = () => {
         ))}
       </div>
 
-      {/* Modal */}
+      {/* Modal for displaying selected image details */}
       {selectedImg && (
         <div className="modal">
           <div className="modal-content">
@@ -67,8 +69,9 @@ const UnsplashGallery = () => {
             </span>
             <img src={selectedImg.urls.regular} alt={selectedImg.alt_description} />
             <h2>{selectedImg.alt_description}</h2>
-            <h3>Autor: {selectedImg.user.name}</h3>
+            <h3>Author: {selectedImg.user.name}</h3>
             <p>Tags: {getKeywords(selectedImg.alt_description).join(", ")}</p>
+            <Comments />
           </div>
         </div>
       )}
