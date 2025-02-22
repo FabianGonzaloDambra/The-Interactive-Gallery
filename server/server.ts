@@ -8,11 +8,11 @@ dotenv.config();
 
 // Configure MySQL connection pool
 const pool = mysql.createPool({
-  host: process.env.MS_HOST,
-  user: process.env.MS_USER,
-  database: process.env.MS_DATABASE,
-  password: process.env.MS_PASSWORD,
-  port: Number(process.env.MS_PORT), // Default MySQL port is 3306
+  host: process.env.MySQLHOST,
+  user: process.env.MySQLUSER,
+  database: process.env.MySQL_DATABASE,
+  password: process.env.MySQLPASSWORD,
+  port: Number(process.env.MySQLPORT), // Default MySQL port is 3306
 });
 
 // Create the Express app
