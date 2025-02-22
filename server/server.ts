@@ -8,12 +8,18 @@ dotenv.config();
 
 // Configure MySQL connection pool
 const pool = mysql.createPool({
-  host: process.env.MySQLHOST,
-  user: process.env.MySQLUSER,
-  database: process.env.MySQL_DATABASE,
-  password: process.env.MySQLPASSWORD,
-  port: Number(process.env.MySQLPORT), // Default MySQL port is 3306
+  host: process.env.MYSQLHOST,
+  user: process.env.MYSQLUSER,
+  database: process.env.MYSQL_DATABASE,
+  password: process.env.MYSQLPASSWORD,
+  port: Number(process.env.MYSQLPORT), // Default MySQL port is 3306
 });
+
+console.log("MYSQLHOST:", process.env.MYSQLHOST);
+console.log("MYSQLUSER:", process.env.MYSQLUSER);
+console.log("MYSQL_DATABASE:", process.env.MYSQL_DATABASE);
+console.log("MYSQLPASSWORD:", process.env.MYSQLPASSWORD ? "Loaded" : "Not loaded");
+console.log("MYSQLPORT:", process.env.MYSQLPORT);
 
 // Create the Express app
 const app = express();

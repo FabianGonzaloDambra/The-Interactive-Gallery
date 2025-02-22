@@ -24,7 +24,7 @@ const Comments: React.FC<CommentsProps> = ({ user, imageId }) => {
     setError('');
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/comments?imageId=${encodeURIComponent(imageId)}`);
+      const response = await fetch(`https://the-interactive-gallery-production.up.railway.app/comments?imageId=${encodeURIComponent(imageId)}`);
       if (!response.ok) throw new Error('Error fetching comments');
 
       const data = await response.json();
@@ -49,7 +49,7 @@ const Comments: React.FC<CommentsProps> = ({ user, imageId }) => {
     const commentWithImageId = { username: user, content: newComment.content, imageId };
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/comments`, {
+      const response = await fetch(`https://the-interactive-gallery-production.up.railway.app/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(commentWithImageId),
