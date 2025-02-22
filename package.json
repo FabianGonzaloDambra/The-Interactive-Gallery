@@ -2,13 +2,14 @@
   "name": "the-interactive-gallery",
   "private": true,
   "version": "0.0.0",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
+    "start": "ts-node server/server.ts",
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "lint": "eslint --config eslint.config.mjs .",
     "preview": "vite preview"
-  },
+    },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
