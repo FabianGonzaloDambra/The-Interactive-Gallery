@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
 // Define the structure of a comment
 interface Comment {
@@ -14,18 +14,18 @@ interface CommentsProps {
 
 const Comments: React.FC<CommentsProps> = ({ user, imageId }) => {
   const [comments, setComments] = useState<Comment[]>([]);
-  const [newComment, setNewComment] = useState({ content: "" });
+  const [newComment, setNewComment] = useState({ content: '' });
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<string>('');
 
   // Function to fetch comments from the backend
   const fetchComments = async () => {
     setLoading(true);
-    setError("");
+    setError('');
 
     try {
-      const response = await fetch(`http://localhost:5000/comments?imageId=${encodeURIComponent(imageId)}`);
-      if (!response.ok) throw new Error("Error fetching comments");
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/comments?imageId=${encodeURIComponent(imageId)}`);
+      if (!response.ok) throw new Error('Error fetching comments');
 
       const data = await response.json();
       setComments(Array.isArray(data) ? data : []);
@@ -49,38 +49,38 @@ const Comments: React.FC<CommentsProps> = ({ user, imageId }) => {
     const commentWithImageId = { username: user, content: newComment.content, imageId };
 
     try {
-      const response = await fetch("http://localhost:5000/comments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(commentWithImageId),
       });
 
-      if (!response.ok) throw new Error("Error submitting the comment");
+      if (!response.ok) throw new Error('Error submitting the comment');
 
       await fetchComments(); // Reload comments
-      setNewComment({ content: "" }); // Clear the form
+      setNewComment({ content: '' }); // Clear the form
     } catch (err) {
       setError(`Error adding the comment: ${err}`);
     }
   };
 
   return (
-    <div className="comments">
+    <div className='comments'>
 
       {loading && <p>Loading comments...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
 
       <form onSubmit={handleSubmit}>
-        <div className="comment-section">
-          <label htmlFor="content">Comment:</label>
+        <div className='comment-section'>
+          <label htmlFor='content'>Comment:</label>
           <textarea
-            id="content"
+            id='content'
             value={newComment.content}
             onChange={(e) => setNewComment({ content: e.target.value })}
             required
           />
         </div>
-        <button type="submit">Add comment</button>
+        <button type='submit'>Add comment</button>
       </form>
 
       <h2>Comments</h2>

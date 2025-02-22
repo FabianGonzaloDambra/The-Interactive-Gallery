@@ -28,22 +28,22 @@ const UnsplashGallery = () => {
   const [selectedImg, setSelectedImg] = useState<UnsplashImage | null>(null);
   const [user, setUser] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>(""); // Error message
+  const [error, setError] = useState<string>(''); // Error message
 
   // Fetch random images from Unsplash API
   const fetchImages = async () => {
     if (loading) return; // Don't fetch if already loading
 
     setLoading(true);
-    setError(""); // Reset any previous errors
+    setError(''); // Reset any previous errors
 
     try {
       const response = await fetch(URL);
-      if (!response.ok) throw new Error("Error fetching images");
+      if (!response.ok) throw new Error('Error fetching images');
 
       const data = await response.json();
       if (data.length === 0) {
-        setError("No more images available.");
+        setError('No more images available.');
         return;
       }
 
@@ -60,7 +60,7 @@ const UnsplashGallery = () => {
   }, []);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
+    const storedUser = localStorage.getItem('user');
     if (storedUser) setUser(storedUser); // Load user from localStorage
   }, []);
 
@@ -106,7 +106,7 @@ const handleLike = (imageId: string) => {
   const getKeywords = (description: string) => {
     return description
       ?.toLowerCase()
-      .split(" ")
+      .split(' ')
       .filter(word => word.length > 3 && !word.match(/very|with|through/)) // Ignore common words
       .slice(0, 5); // Limit to 5 tags max
   };
@@ -115,13 +115,13 @@ const handleLike = (imageId: string) => {
     <div>
       <h1>Gallery Images</h1>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
 
       <div
-        style={{ maxHeight: "80vh", overflowY: "auto" }}
+        style={{ maxHeight: '80vh', overflowY: 'auto' }}
         onScroll={handleScroll} // Add scroll event listener
       >
-        <div className="gallery">
+        <div className='gallery'>
           {images.map((image) => (
             <figure key={image.id}>
               {/* Clicking on an image opens the modal */}
@@ -149,16 +149,16 @@ const handleLike = (imageId: string) => {
 
       {/* Modal for displaying selected image details */}
       {selectedImg && (
-        <div className="modal">
-          <div className="modal-content">
+        <div className='modal'>
+          <div className='modal-content'>
             {/* Close button */}
-            <span className="close" onClick={() => setSelectedImg(null)}>
+            <span className='close' onClick={() => setSelectedImg(null)}>
               &times;
             </span>
             <h2>{selectedImg.alt_description}</h2>
             <img src={selectedImg.urls.regular} alt={selectedImg.alt_description} />
             <h3>Author: {selectedImg.user.name}</h3>
-            <p>Tags: {getKeywords(selectedImg.alt_description).join(", ")}</p>
+            <p>Tags: {getKeywords(selectedImg.alt_description).join(', ')}</p>
 
             {/* Like button in modal */}
             <button onClick={() => handleLike(selectedImg.id)}>
