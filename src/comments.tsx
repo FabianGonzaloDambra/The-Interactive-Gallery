@@ -8,60 +8,57 @@ interface Comment {
 }
 
 interface CommentsProps {
-  imageId: string;
+  user: string | null; // We receive the user as a prop
+  imageId: string; // Image ID associated with the comments
 }
 
-const Comments: React.FC<CommentsProps> = ({ imageId }) => {
+const Comments: React.FC<CommentsProps> = ({ user, imageId }) => {
   const [comments, setComments] = useState<Comment[]>([]);
-  const [newComment, setNewComment] = useState({ username: "", content: "" });
+  const [newComment, setNewComment] = useState({ content: "" });
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
-  // 🔹 Function to fetch comments
+  // Function to fetch comments from the backend
   const fetchComments = async () => {
     setLoading(true);
     setError("");
-  
+
     try {
       const response = await fetch(`http://localhost:5000/comments?imageId=${encodeURIComponent(imageId)}`);
       if (!response.ok) throw new Error("Error fetching comments");
-  
+
       const data = await response.json();
-      if (Array.isArray(data)) {
-        setComments(data);
-      } else {
-        setComments([]);
-      }
+      setComments(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(`Error loading comments: ${err}`);
     } finally {
       setLoading(false);
     }
   };
-  
-  // 🔹 Load comments when the component mounts (incluso si imageId cambia)
+
+  // Fetch comments when component mounts or when imageId changes
   useEffect(() => {
     fetchComments();
-  }, [imageId]);  // Ahora depende de imageId
+  }, [imageId]);
 
-  // 🔹 Function to submit a new comment
+  // Function to submit a new comment
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-  
-    // Incluimos imageId en el objeto que vamos a enviar
-    const commentWithImageId = { ...newComment, imageId };
-    
+
+    // Include imageId and username in the comment before sending
+    const commentWithImageId = { username: user, content: newComment.content, imageId };
+
     try {
       const response = await fetch("http://localhost:5000/comments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(commentWithImageId), // Enviamos el comentario con el imageId
+        body: JSON.stringify(commentWithImageId),
       });
-  
+
       if (!response.ok) throw new Error("Error submitting the comment");
-  
-      await fetchComments(); // Recargar los comentarios del backend
-      setNewComment({ username: "", content: "" }); // Limpiar el formulario
+
+      await fetchComments(); // Reload comments
+      setNewComment({ content: "" }); // Clear the form
     } catch (err) {
       setError(`Error adding the comment: ${err}`);
     }
@@ -74,7 +71,6 @@ const Comments: React.FC<CommentsProps> = ({ imageId }) => {
       {loading && <p>Loading comments...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {/* Display comments */}
       <ul>
         {comments.length > 0 ? (
           comments.map((comment) => (
@@ -87,24 +83,13 @@ const Comments: React.FC<CommentsProps> = ({ imageId }) => {
         )}
       </ul>
 
-      {/* Form to add a new comment */}
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="username">Username:</label>
-          <input
-            type="text"
-            id="username"
-            value={newComment.username}
-            onChange={(e) => setNewComment({ ...newComment, username: e.target.value })}
-            required
-          />
-        </div>
         <div>
           <label htmlFor="content">Comment:</label>
           <textarea
             id="content"
             value={newComment.content}
-            onChange={(e) => setNewComment({ ...newComment, content: e.target.value })}
+            onChange={(e) => setNewComment({ content: e.target.value })}
             required
           />
         </div>

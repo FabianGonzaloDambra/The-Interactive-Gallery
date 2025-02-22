@@ -6,35 +6,35 @@ import mysql from "mysql2";
 // Load environment variables
 dotenv.config();
 
-// Configure MySQL connection
+// Configure MySQL connection pool
 const pool = mysql.createPool({
   host: process.env.MS_HOST,
   user: process.env.MS_USER,
   database: process.env.MS_DATABASE,
   password: process.env.MS_PASSWORD,
-  port: Number(process.env.MS_PORT), // MySQL default port is usually 3306
+  port: Number(process.env.MS_PORT), // Default MySQL port is 3306
 });
 
 // Create the Express app
 const app = express();
 app.use(cors());
-app.use(express.json()); // To receive JSON in requests
+app.use(express.json()); // Enable JSON parsing in request bodies
 
-// Define the interface for the comment request body
+// Define the interface for a comment
 interface Comment {
   username: string;
   content: string;
+  imageId?: string;
   id?: number;
 }
 
-// Route to get comments
-// Ruta para obtener comentarios filtrados por imageId
+// 🔹 Route to get comments filtered by imageId
 app.get("/comments", async (req: Request, res: Response): Promise<void> => {
-  const { imageId } = req.query; // Obtener el parámetro imageId de la query string
+  const { imageId } = req.query; // Get imageId from query parameters
 
-  let query = "SELECT * FROM comments WHERE 1=1"; // Consulta básica
+  let query = "SELECT * FROM comments WHERE 1=1"; // Base query
 
-  // Filtrar por imageId si se pasa
+  // If imageId is provided, filter comments by it
   if (imageId) {
     query += ` AND image_id = ?`;
   }
@@ -42,37 +42,36 @@ app.get("/comments", async (req: Request, res: Response): Promise<void> => {
   try {
     pool.query(query, [imageId], (error, results) => {
       if (error) {
-        console.error("Error fetching comments", error);
+        console.error("Error fetching comments:", error);
         res.status(500).json({ error: "Internal server error" });
       } else {
         res.json(results);
       }
     });
   } catch (error) {
-    console.error("Error fetching comments", error);
+    console.error("Error fetching comments:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
-
-// Route to add a comment
+// 🔹 Route to add a new comment
 app.post("/comments", async (req: Request, res: Response): Promise<void> => {
   const { username, content, imageId } = req.body;
 
-  // Check if both username and content are provided
+  // Validate required fields
   if (!username || !content) {
     res.status(400).json({ error: "Missing data" });
-    return; // Se asegura de que la función termine después de la respuesta
+    return;
   }
 
-  // Check if the comment content is too short
+  // Validate comment length
   if (content.length < 5) {
     res.status(400).json({ error: "Comment must be at least 5 characters long" });
-    return; // Asegura que la función termine después de la respuesta
+    return;
   }
 
   try {
-    // Insert the comment
+    // Insert the new comment into the database
     const [result]: any = await pool.promise().execute(
       "INSERT INTO comments (username, content, image_id) VALUES (?, ?, ?)",
       [username, content, imageId]
@@ -84,13 +83,12 @@ app.post("/comments", async (req: Request, res: Response): Promise<void> => {
       [result.insertId]
     );
 
-    res.status(201).json(newComment[0]);
+    res.status(201).json(newComment[0]); // Return the newly created comment
   } catch (error) {
     console.error("Error inserting comment:", error);
     res.status(500).json({ error: "Server error" });
   }
 });
-
 
 // Start server
 const PORT = process.env.PORT || 5000;
