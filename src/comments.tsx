@@ -65,11 +65,25 @@ const Comments: React.FC<CommentsProps> = ({ user, imageId }) => {
   };
 
   return (
-    <div>
-      <h2>Comments</h2>
+    <div className="comments">
 
       {loading && <p>Loading comments...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
+
+      <form onSubmit={handleSubmit}>
+        <div className="comment-section">
+          <label htmlFor="content">Comment:</label>
+          <textarea
+            id="content"
+            value={newComment.content}
+            onChange={(e) => setNewComment({ content: e.target.value })}
+            required
+          />
+        </div>
+        <button type="submit">Add comment</button>
+      </form>
+
+      <h2>Comments</h2>
 
       <ul>
         {comments.length > 0 ? (
@@ -82,19 +96,6 @@ const Comments: React.FC<CommentsProps> = ({ user, imageId }) => {
           <p>No comments available.</p>
         )}
       </ul>
-
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="content">Comment:</label>
-          <textarea
-            id="content"
-            value={newComment.content}
-            onChange={(e) => setNewComment({ content: e.target.value })}
-            required
-          />
-        </div>
-        <button type="submit">Add comment</button>
-      </form>
     </div>
   );
 };
